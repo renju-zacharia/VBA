@@ -1,0 +1,100 @@
+Sub Calc_Total()
+
+    Dim ticker As String
+    Dim total As Double
+    Dim i As Long
+    Dim num_ticker As Integer
+    Dim nrows As Long
+    Dim ws As Worksheet
+    Dim start_price As Double
+    Dim end_price As Double
+    Dim poc As Double
+    Dim ticker_high As String
+    Dim ticker_low As String
+    Dim ticker_volume As String
+    Dim poc_high As Double
+    Dim poc_low As Double
+    Dim high_total As Double
+                
+    For Each ws In Worksheets
+    
+        total = 0
+        num_ticker = 0
+        
+        ws.Activate
+                
+        start_price = Range("C2")
+        high_total = 0
+        poc_high = 0
+        poc_low = 0
+        Cells(1, 9)  = "Ticker"
+        Cells(1, 10) = "Yearly Change"
+        Cells(1, 11) = "Percentage Change"
+        Cells(1, 12) = "Total Stock Volume"
+        Cells(2, 15) = "Greatest % Increase"
+        Cells(3, 15) = "Greatest % Decrease"
+        Cells(4, 15) = "Greatest Total Volume"
+        Cells(1, 16) = "Ticker"
+        Cells(1, 17) = "Value"
+        
+        nrows = ActiveSheet.UsedRange.rows.Count
+        
+        For i = 2 To nrows
+        
+            If (Cells(i + 1, 1) <> Cells(i, 1)) Then
+                num_ticker = num_ticker + 1
+                total = total + Cells(i, 7)
+                end_price = Cells(i, 6)
+                Cells(num_ticker + 1, 9) = Cells(i, 1)
+                Cells(num_ticker + 1, 10) = end_price - start_price
+                
+                If Cells(num_ticker + 1, 10) > 0 Then
+                   Cells(num_ticker + 1, 10).Interior.ColorIndex = 4
+                Else
+                   Cells(num_ticker + 1, 10).Interior.ColorIndex = 3
+                End If
+                
+                If (start_price = 0) Then
+                    poc = 0
+                Else
+                    poc = (end_price - start_price) / (start_price)
+                End If
+                
+                If (poc > poc_high) Then
+                    poc_high = poc
+                    ticker_high = Cells(i, 1)
+                End If
+               
+                If (poc < poc_low) Then
+                    poc_low = poc
+                    ticker_low = Cells(i, 1)
+                End If
+                
+                If (total > high_total) Then
+                    high_total = total
+                    ticker_volume = Cells(i, 1)
+                End If
+                                                    
+                Cells(num_ticker + 1, 11) = poc
+                Cells(num_ticker + 1, 11).NumberFormat = "0.00%"
+                Cells(num_ticker + 1, 12) = total
+                total = 0
+                start_price = Cells(i + 1, 3)
+            Else
+                total = total + Cells(i, 7)
+            End If
+            
+        Next i
+        
+        Cells(2, 16) = ticker_high
+        Cells(2, 17) = poc_high
+        Cells(2, 17).NumberFormat = "0.00%"
+        Cells(3, 16) = ticker_low
+        Cells(3, 17) = poc_low
+        Cells(3, 17).NumberFormat = "0.00%"
+        Cells(4, 16) = ticker_volume
+        Cells(4, 17) = high_total
+        
+    Next
+
+End Sub
